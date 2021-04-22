@@ -1,31 +1,42 @@
 import cv2 as cv
 import numpy as np
 
+# Global colour ranges
+# Upper limit first, then lower limit, in HSV format
+BLUE = (105, 135) # HSV range for blue
+GREEN = (55, 80) # HSV range for green
+RED = (150, 179) # HSV range for red
+YELLOW = (15, 45) # HSV range for yellow
+# Current colour to look for
+COLOUR = YELLOW
+
 def filterImage(image, color):
 
     # Convert BGR to HSV
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
     # define range of red color in HSV
-    lower_red = np.array([color-20,50,50])
-    upper_red = np.array([color+20,255,255])
+    lower = np.array([color[0],50,50])
+    upper = np.array([color[1],255,255])
 
     # Threshold the HSV image to get only red colors
-    mask = cv.inRange(hsv, lower_red, upper_red)
+    mask = cv.inRange(hsv, lower, upper)
 
     # Bitwise--AND mask and the original image
     res = cv.bitwise_and(image, image, mask=mask)
     return mask, res
     
-def main(path='images/current-2.jpg'):
+def main(color=GREEN, path='images/current-2.jpg'):
+    cv.destroyAllWindows()
     image = cv.imread(path)
 
-    mask, result = filterImage(image, 180)
+    mask, result = filterImage(image, color)
     # cv.imshow('image', image)
-    cv.imshow('mask', mask)
-    # cv.imshow('res', res)
-    cv.waitKey(0)
+    # cv.imshow('mask', mask)
+    cv.imshow('res', result)
+    # input("press enter to stop")
     # input('press enter to end')
+    cv.waitKey(0)
     cv.destroyAllWindows()
 
 if __name__ == "__main__":
