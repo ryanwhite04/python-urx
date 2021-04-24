@@ -1,4 +1,7 @@
-docs/_*
-build
-.idea/
-*.pyc
+env
+*.swp
+*.swo
+__pycache__
+build/
+dist/
+urx.egg-info/
