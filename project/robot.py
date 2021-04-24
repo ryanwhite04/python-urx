@@ -1,8 +1,8 @@
 import urx
 from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper as Gripper
 from time import sleep
-from filter import filterImage
-from request import get
+from filter import *
+from requests import get
 
 def getImage(ip, path="camera.jpg"):
     content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
@@ -13,10 +13,10 @@ def getImage(ip, path="camera.jpg"):
 def showCamera(ip):
     path = getImage(ip)
     image = cv.imread(path)
-    filtered = filterImage(image, 180)
+    filtered = filterImage(image, RED)
     cv.imshow('camera', image)
     cv.imshow('red', filtered)
-    input('press enter to end')
+    cv.waitKey(0)
     cv.destroyAllWindows()
 
 def getRobot(ip):
@@ -32,8 +32,8 @@ def main(ip="192.168.1.6"):
     # while 1:
     #     j_temp = robot.get_joint_temperature()
     #     print(j_temp)
-    position = (0.56597, 0.10704, 0.40409)
-    robot.set_pos(position)
+    # position = (0.56597, 0.10704, 0.40409)
+    # robot.set_pos(position)
     #     sleep(0.1)
     while 1:
         showCamera(ip)
