@@ -26,19 +26,14 @@ def showCamera(ip):
     cv.destroyAllWindows()
 
 def liveFeed(ip, color=GREEN):
-
-    result, mask = filterImage(getImage(ip), color)
-    cv.imshow(f'live {color}', addCircles(result, mask))
-    cv.waitKey(0)
-    cv.destroyAllWindows()
-    # while True:
-    #     try:
-    #         result, mask = filterImage(getImage(ip), color)
-    #         cv.imshow(f'live {color}', addCircles(result, mask))
-    #         cv.waitKey(1)
-    #     except Exception as e:
-    #         print(e)
-    #         break
+    while True:
+        try:
+            result, mask = filterImage(getImage(ip), color)
+            cv.imshow(f'live {color}', addCircles(result, mask))
+            cv.waitKey(1)
+        except Exception as e:
+            print(e)
+            break
 
 def main(num=6, color="GREEN"):
     print(num, color)
