@@ -4,20 +4,6 @@ from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper as Gripper
 from sys import argv
 from time import sleep
 from clean import clean
-def getImage(ip, path="camera.jpg"):
-    content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
-    with open(path, 'wb') as f:
-        f.write(content)
-    return path
-
-def showCamera(ip):
-    path = getImage(ip)
-    image = cv.imread(path)
-    filtered = filterImage(image, RED)
-    cv.imshow('camera', image)
-    cv.imshow('red', filtered)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
 
 def getRobot(ip):
     rob = urx.Robot(ip, use_rt=True, urFirm=5.10)
@@ -39,20 +25,9 @@ def main(num, speed=0.1, acceleration=speed):
         input("Move tool over the YELLOW bucket, then press Enter: ")
         buckets["Yellow"] = robot.get_pose()
         input("Move tool to a good height and press enter: ")
-        BASE_POSITION = robot.get_pose()
-        print("Moving to red bucket...")
-        robot.set_pose(buckets["Red"], speed, acceleration)
-        sleep(10)
-        print("Moving to green bucket...")
-        robot.set_pose(buckets["Green"], speed, acceleration)
-        sleep(10)
-        print("Moving to yellow bucket...")
-        robot.set_pose(buckets["Yellow"], speed, acceleration)
-        sleep(10)
-        print("Moving to start position...")
-        robot.set_pose(BASE_POSITION, speed, acceleration)
-        print("Done")
-        clean(robot, gripper, BASE_POSITION, buckets)
+        position = robot.get_pose()
+        clean(num, robot, gripper, buckets)
+        robot.set_pose(position, speed, acceleration)
     except:
         print('Something went wrong')
     finally:
