@@ -1,3 +1,4 @@
+from sys import argv
 from requests import get
 from filter import *
 
@@ -39,3 +40,14 @@ def liveFeed(ip, color=GREEN):
     #         print(e)
     #         break
 
+def main(num=6, color="GREEN"):
+    print(num, color)
+    colors = {
+        "GREEN": GREEN,
+        "YELLOW": YELLOW,
+        "RED": RED
+    }
+    liveFeed(f'192.168.1.{num}', colors[color])
+
+if __name__ == "__main__":
+    main(*argv)
