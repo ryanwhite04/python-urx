@@ -11,7 +11,7 @@ YELLOW = (15, 45) # HSV range for yellow
 # THRESHOLD
 THRESH = 30
 
-def getImage(ip, colour, path="camera.jpg"):
+def getImage(ip, path="camera.jpg"):
     content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
     with open(path, 'wb') as f:
         f.write(content)
@@ -25,11 +25,11 @@ def showCamera(ip, colour):
     else:
         col = GREEN
 
-    #path = getImage(ip, colour)
+    path = getImage(ip)
     image = cv.imread(path)
     #image = cv.imread('images/grass.jpg')
     filtered, mask = filterImage(image, col)
-    cv.imshow('camera', image)
+    #cv.imshow('camera', image)
     #cv.imshow('red', filtered)
     #cv.waitKey(0)
     #cv.destroyAllWindows()'''
@@ -48,8 +48,8 @@ def checkForColour(mask):
 
 
 
-def search(colour, ip=6):
-    ip = '192.168.1.{ip}'
+def search(colour, ipa=6):
+    ip = f'192.168.1.{ipa}'
     mask = showCamera(ip, colour)
     return checkForColour(mask), mask
 
