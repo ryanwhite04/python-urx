@@ -1,8 +1,3 @@
-env
-*.swp
-*.swo
-__pycache__
+.DS_Store
 build/
 dist/
-urx.egg-info/
-camera.jpg
