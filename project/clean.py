@@ -1,3 +1,20 @@
+from request import get
+
+def getImage(ip, path="camera.jpg"):
+    content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
+    with open(path, 'wb') as f:
+        f.write(content)
+    return path
+
+def showCamera(ip):
+    path = getImage(ip)
+    image = cv.imread(path)
+    filtered = filterImage(image, RED)
+    cv.imshow('camera', image)
+    cv.imshow('red', filtered)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
 
 def set_height(height):
     pose = r.get_pose()
@@ -36,7 +53,16 @@ def deposit(color, image, height=0.1):
     gripper.open_gripper()
     robot.set_pose(pose)
 
-def centre(color, threshold, horizontal=True)
-    # TODO
+def centre(color, threshold, dimensions)
+    x, y = getCoordinates(color)
+    if abs(x-dimensions[0]) < threshold:
+        if abs(y-dimensions[1]) < threshold:
+            return
+        else:
+            moveUp(y-dimensions[1])
+            centre(color, threshold, dimensions)
+    else:
+        moveRight(x-dimensions[0])
+        centre(color, threshold, dimensions)
 
     
