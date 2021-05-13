@@ -24,7 +24,7 @@ def filterImage(image, color):
 
     # Bitwise--AND mask and the original image
     res = cv.bitwise_and(image, image, mask=mask)
-    return res
+    return res, mask
     
 def main(color=GREEN, path='images/current-2.jpg'):
     cv.destroyAllWindows()
