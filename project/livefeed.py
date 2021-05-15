@@ -6,7 +6,8 @@ def addCircles(result, mask):
     circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 2.5, 100, 200)
     circles = np.uint16(np.around(circles))
     for c in circles[0,:]:
-        cv.circle(result, (c[0], c[1]), 10, (255, 0, 0), 3)
+        if c.size() > 1:
+            cv.circle(result, (c[0], c[1]), 10, (255, 0, 0), 3)
     return result
     
 
@@ -26,19 +27,14 @@ def showCamera(ip):
     cv.destroyAllWindows()
 
 def liveFeed(ip, color=GREEN):
-
-    result, mask = filterImage(getImage(ip), color)
-    cv.imshow(f'live {color}', addCircles(result, mask))
-    cv.waitKey(0)
-    cv.destroyAllWindows()
-    # while True:
-    #     try:
-    #         result, mask = filterImage(getImage(ip), color)
-    #         cv.imshow(f'live {color}', addCircles(result, mask))
-    #         cv.waitKey(1)
-    #     except Exception as e:
-    #         print(e)
-    #         break
+    while True:
+        try:
+            result, mask = filterImage(getImage(ip), color)
+            cv.imshow(f'live {color}', addCircles(result, mask))
+            cv.waitKey(1)
+        except Exception as e:
+            print(e)
+            break
 
 def main(num=6, color="GREEN"):
     print(num, color)
@@ -48,6 +44,21 @@ def main(num=6, color="GREEN"):
         "RED": RED
     }
     liveFeed(f'192.168.1.{num}', colors[color])
+
+
+def getCoordinates(color):
+    colors = {
+        "GREEN": GREEN,
+        "YELLOW": YELLOW,
+        "RED": RED
+    }
+    c = colors[color]
+    result, mask = filterImage(getImage(ip), color)
+    circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 2.5, 100, 200)
+    circles = np.uint16(np.around(circles))
+    return circles[0][0], circles[0][1] # return x and y centre of the first circle identified
+
+
 
 if __name__ == "__main__":
     main(*argv)
