@@ -1,18 +1,23 @@
-from request import get
+from requests import get
+from filter import *
+ROBOT = False
+GRIPPER = False
 
-ROBOT
-GRIPPER
-
+def getCoordinates(color):
+    result, mask = filterImage(cv.imread('clustered.jpg'), GREEN)
+    circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 2.5, 100, 200)
+    
 def main(num, robot, gripper, buckets):
-    global ROBOT = robot
-    global GRIPPER = gripper
-    clean(num, buckets)
+    global ROBOT
+    global GRIPPER
+    ROBOT = robot
+    GRIPPER = gripper
+    clean(num, buckets, 0.2)
 
 def getImage(ip, path="camera.jpg"):
     content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
-    with open(path, 'wb') as f:
-        f.write(content)
-    return path
+    array = np.asarray(bytearray(content), dtype=np.uint8)
+    return cv.imdecode(array, -1)
 
 def showCamera(ip):
     path = getImage(ip)
@@ -23,6 +28,15 @@ def showCamera(ip):
     cv.waitKey(0)
     cv.destroyAllWindows()
 
+def liveFeed(ip, color=GREEN):
+    while True:
+        try:
+            result, mask = filterImage(getImage(ip), color)
+            cv.imshow(f'live {color}', result)
+        except Exception as e:
+            print(e)
+            break
+
 def set_height(height):
     r = ROBOT
     pose = r.get_pose()
@@ -30,7 +44,8 @@ def set_height(height):
     r.set_pose(pose)
 
 def clean(num, buckets):
-    angle = pi/4, delta = 0.1
+    angle = pi/4
+    delta = 0.1
     for color in ["red", "green", "yellow"]:
         sort(num, color, delta, angle, 0.2)
         angle *= -1
@@ -77,7 +92,7 @@ def deposit(num, color, image, height=0.1):
     gripper.open_gripper()
     robot.set_pose(pose)
 
-def centre(num, color, threshold, dimensions)
+def centre(num, color, threshold, dimensions):
     x, y = getCoordinates(color)
     if abs(x-dimensions[0]) < threshold:
         if abs(y-dimensions[1]) < threshold:
