@@ -3,11 +3,10 @@ from requests import get
 from filter import *
 
 def addCircles(result, mask):
-    circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 2.5, 100, 200)
+    circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 2.5, 20)
     circles = np.uint16(np.around(circles))
-    for c in circles[0,:]:
-        if c.size() > 1:
-            cv.circle(result, (c[0], c[1]), 10, (255, 0, 0), 3)
+    for c in [c for c in circles[0,:] if c]:
+        cv.circle(result, (c[0], c[1]), 10, (255, 0, 0), 3)
     return result
     
 
@@ -27,14 +26,13 @@ def showCamera(ip):
     cv.destroyAllWindows()
 
 def liveFeed(ip, color=GREEN):
+    print(ip, color)
     while True:
-        try:
-            result, mask = filterImage(getImage(ip), color)
-            cv.imshow(f'live {color}', addCircles(result, mask))
-            cv.waitKey(1)
-        except Exception as e:
-            print(e)
-            break
+        result, mask = filterImage(getImage(ip), color)
+        cv.imshow(f'live {color}', addCircles(result, mask))
+        cv.waitKey(1)
+        print(e)
+        break
 
 def main(num=6, color="GREEN"):
     print(num, color)
@@ -61,4 +59,4 @@ def getCoordinates(color):
 
 
 if __name__ == "__main__":
-    main(*argv)
+    main(*argv[1:])
