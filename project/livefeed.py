@@ -1,20 +1,31 @@
 from sys import argv
 from requests import get
+from requests.models import to_key_val_list
 from filter import *
 
 def addCircles(result, mask):
-    circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 2.5, 20)
-    circles = np.uint16(np.around(circles))
-    for c in [c for c in circles[0,:] if c]:
-        cv.circle(result, (c[0], c[1]), 10, (255, 0, 0), 3)
-    return result
+    #print('ffff')
     
+    circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT,
+        4, 100,
+        # param1=50, param2=30,
+        minRadius=0, maxRadius=150)
+    try:
+
+        if circles.ndim == 3:
+            circles = np.uint16(np.around(circles))
+            print("a")
+            for c in circles[0,:]:
+                print(c)
+                cv.circle(result, (c[0], c[1]), c[2], (255, 0, 0), 3)
+    except AttributeError:
+        print("err")    
+    return result
 
 def getImage(ip, path="camera.jpg"):
     content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
     array = np.asarray(bytearray(content), dtype=np.uint8)
     return cv.imdecode(array, -1)
-
 
 def showCamera(ip):
     path = getImage(ip)
@@ -28,11 +39,13 @@ def showCamera(ip):
 def liveFeed(ip, color=GREEN):
     print(ip, color)
     while True:
-        result, mask = filterImage(getImage(ip), color)
-        cv.imshow(f'live {color}', addCircles(result, mask))
-        cv.waitKey(1)
-        print(e)
-        break
+        try:
+            result, mask = filterImage(getImage(ip), color, 2)
+            cv.imshow(f'live {color}', addCircles(result, mask))
+            cv.waitKey(1)
+        except KeyboardInterrupt:
+            print("close")
+            break
 
 def main(num=6, color="GREEN"):
     print(num, color)
@@ -55,6 +68,7 @@ def getCoordinates(color):
     circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 2.5, 100, 200)
     circles = np.uint16(np.around(circles))
     return circles[0][0], circles[0][1] # return x and y centre of the first circle identified
+
 
 
 
