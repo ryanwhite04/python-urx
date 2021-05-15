@@ -19,11 +19,11 @@ def main(num, speed=0.1, acceleration=speed):
     buckets = {}
     try:
         input("Move tool over the RED bucket, then press Enter: ")
-        buckets["Red"] = robot.get_pose()
+        buckets["RED"] = robot.get_pose()
         input("Move tool over the GREEN bucket, then press Enter: ")
-        buckets["Green"] = robot.get_pose()
+        buckets["GREEN"] = robot.get_pose()
         input("Move tool over the YELLOW bucket, then press Enter: ")
-        buckets["Yellow"] = robot.get_pose()
+        buckets["YELLOW"] = robot.get_pose()
         input("Move tool to a good height and press enter: ")
         position = robot.get_pose()
         clean(num, robot, gripper, buckets)

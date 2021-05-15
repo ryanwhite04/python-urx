@@ -1,6 +1,7 @@
 from requests import get
 from filter import filterImage
 import cv2 as cv
+from livefeed import getImage
 
 BLUE = (105, 135) # HSV range for blue
 GREEN = (55, 80) # HSV range for green
@@ -11,11 +12,6 @@ YELLOW = (15, 45) # HSV range for yellow
 # THRESHOLD
 THRESH = 30
 
-def getImage(ip, path="camera.jpg"):
-    content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
-    with open(path, 'wb') as f:
-        f.write(content)
-    return path
 
 def showCamera(ip, colour):
     if colour == "RED":
