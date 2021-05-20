@@ -4,9 +4,10 @@ from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper as Gripper
 from sys import argv
 from time import sleep
 from clean import *
+from math import pi
 
 def getRobot(ip):
-    rob = urx.Robot(ip, use_rt=True, urFirm=5.10)
+    rob = urx.Robot(ip, use_rt=True)
     rob.set_tcp((0, 0, 0.1, 0, 0, 0))
     rob.set_payload(2, (0, 0, 0.1))
     sleep(0.2)
@@ -26,7 +27,7 @@ def main(num, speed=0.1):
         buckets["GREEN"] = robot.get_pose()
         input("Move tool over the YELLOW bucket, then press Enter: ")
         buckets["YELLOW"] = robot.get_pose()
-        robot.movej(start, speed, acceleration)
+        robot.movej(start, vel=speed, acc=acceleration, wait=True)
         clean(num, robot, gripper, buckets, speed)
     # except Exception as e:
     #     print('Something went wrong', e)
