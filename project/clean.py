@@ -77,7 +77,7 @@ def deposit(num, color, image, height=0.1):
     robot = ROBOT
     gripper = GRIPPER
     pose = robot.get_pose()
-    centre(num, color, threshold)
+    centre(num, color, threshold, [500, 400])
     gripper.open_gripper()
     set_height(height)
     gripper.close_gripper()
