@@ -40,7 +40,7 @@ def set_height(height):
 def clean(num):
     angle = pi/4
     delta = 0.1
-    for color in ["red", "green", "yellow"]:
+    for color in ["RED", "GREEN", "YELLOW"]:
         sort(num, color, delta, angle, 0.2)
         angle *= -1
         delta *= -1
@@ -79,7 +79,6 @@ def deposit(num, color, image, height=0.1):
     pose = robot.get_pose()
     centre(num, color, threshold)
     gripper.open_gripper()
-    # toolDown(robot)
     set_height(height)
     gripper.close_gripper()
     robot.set_pose(pose)
