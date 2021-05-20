@@ -1,6 +1,6 @@
 from math import pi
 from requests import get
-from search import search
+from search import search, showCamera
 import cv2 as cv
 from filter import filterImage
 from livefeed import getCoordinates
@@ -34,26 +34,17 @@ def showImage(mask):
     cv.waitKey(0)
     cv.destroyAllWindows()
 
-def showCamera(ip):
-    path = getImage(ip)
-    image = cv.imread(path)
-    filtered = filterImage(image, RED)
-    cv.imshow('camera', image)
-    cv.imshow('red', filtered)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
-
-def set_height(height):
+def set_height(height, speed):
     r = ROBOT
     pose = r.get_pose()
     pose.pos[2] = height
-    r.set_pose(pose)
+    r.set_pose(pose, speed/2, speed)
 
 def sort(num, color, speed, delta, angle):
     r = ROBOT
     j = r.getj()
     j[0] = -angle
-    r.movej(j, speed, speed/2)
+    r.movej(j, speed, speed/2, wait=True)
     while r.getj()[0] < angle:
         found, mask = search(num, color)
         print('found', found)
@@ -65,48 +56,66 @@ def sort(num, color, speed, delta, angle):
         else:
             j = r.getj()
             j[0] += delta
-            r.movej(j, speed, speed/2)
+            r.movej(j, speed, speed/2, wait=True)
 
-def moveUp(y, speed):
-    r = ROBOT
-    pose = r.get_pose()
-    pose.pos[0] += y*0.1
-    pose.pos[1] += y*0.1
-    r.set_pose(pose)
-
-def moveRight(x, speed):
+def moveUp(y, speed, scalar=0.005):
+    print('moving up by: ', y)
     r = ROBOT
     j = r.getj()
-    j[0] += x*0.1
-    r.movej(j, speed, speed/2)
+
+    # pose = r.get_pose()
+
+    # pose.pos[0] += y*scalar*pi/180
+    # pose.pos[1] += y*scalar*pi/180
+    j[1] -= y*scalar*pi/180
+    j[2] += y*scalar*pi/180
+    # r.set_pose(pose)
+    r.movej(j)
+
+def moveRight(x, speed, scalar=0.01):
+    print('moving right by: ', x)
+    r = ROBOT
+    j = r.getj()
+    j[0] -= x*scalar*pi/180
+    r.movej(j, speed, speed/2, wait=True)
 
 def deposit(num, color, speed, height=0.1):
-    threshold = 30
+    acceleration = speed / 2
+    threshold = 10
     robot = ROBOT
     gripper = GRIPPER
     pose = robot.get_pose()
-    centre(num, color, threshold, [500, 400], speed)
+    if not centre(num, color, threshold, [640, 480], speed):
+        return
     gripper.open_gripper()
-    set_height(height)
+    j = robot.getj()
+    j[3] = -pi/2.1
+    robot.movej(j, speed, speed/2)
+    set_height(height, speed)
     gripper.close_gripper()
-    robot.set_pose(pose)
-    robot.set_pose(BUCKETS[color])
+    robot.set_pose(pose, acceleration, speed)
+    robot.set_pose(BUCKETS[color], acceleration, speed)
     gripper.open_gripper()
-    robot.set_pose(pose)
+    robot.set_pose(pose, acceleration, speed)
 
-def centre(num, color, threshold, dimensions, speed):
-    res, x, y = getCoordinates(num, color)
+def centre(num, color, threshold, dimensions, speed, counter=0):
+    mask = showCamera(num, color)
+    res, x, y = getCoordinates(mask)
     print('centre', res, x, y)
     # x = x * scaling factor
     # y = y * scaling factor
     input('press enter to allow: ')
     if res == True:
-        if abs(x-dimensions[0]) < threshold:
-            if abs(y-dimensions[1]) < threshold:
+        if abs(x-dimensions[0]/2) < threshold:
+            if abs(y-dimensions[1]/2) < threshold:
                 return 1
             else:
-                moveUp(y-dimensions[1], speed)
+                moveUp(dimensions[1]/2-y, speed, 0.015)
                 return centre(num, color, threshold, dimensions, speed)
         else:
-            moveRight(x-dimensions[0], speed)
+            moveRight(x-dimensions[0]/2, speed, 0.03)
             return centre(num, color, threshold, dimensions, speed)
+    elif counter < 3:
+        centre(num, color, threshold, dimensions, speed, counter+1)
+    else:
+        print('need to write better code')

@@ -1,7 +1,7 @@
 from requests import get
 from filter import filterImage
 import cv2 as cv
-from livefeed import getImage
+from livefeed import getImage, getCoordinates
 
 BLUE = (105, 135) # HSV range for blue
 GREEN = (55, 80) # HSV range for green
@@ -26,7 +26,8 @@ def checkForColour(mask):
             if px:
                 count += 1
         columnVals.append(count)
-    return sum(columnVals) > THRESH
+    
+    return sum(columnVals) > THRESH and getCoordinates(mask)[0]
 
 def search(num, color):
     print('search', color, num)

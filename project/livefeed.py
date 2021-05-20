@@ -1,3 +1,4 @@
+from time import sleep
 from sys import argv
 from requests import get
 from requests.models import to_key_val_list
@@ -24,6 +25,8 @@ def addCircles(result, mask):
 
 def getImage(num):
     print('getImage', num)
+    # sleep(3)
+    content = get(f'http://192.168.1.{num}:4242/current.jpg?annotations=off').content
     content = get(f'http://192.168.1.{num}:4242/current.jpg?annotations=off').content
     array = np.asarray(bytearray(content), dtype=np.uint8)
     return cv.imdecode(array, -1)
@@ -59,15 +62,7 @@ def main(num=6, color="GREEN"):
     liveFeed(f'192.168.1.{num}', colors[color])
 
 
-def getCoordinates(num, color):
-    ''' first arg returns true if circle found '''
-    colors = {
-        "GREEN": GREEN,
-        "YELLOW": YELLOW,
-        "RED": RED
-    }
-    c = colors[color]
-    result, mask = filterImage(getImage(num), color, 2)
+def getCoordinates(mask):
     circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT,
         4, 100,
         # param1=50, param2=30,

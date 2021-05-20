@@ -6,7 +6,7 @@ import numpy as np
 BLUE = (105, 135) # HSV range for blue
 GREEN = (55, 80) # HSV range for green
 RED = (150, 179) # HSV range for red
-YELLOW = (15, 45) # HSV range for yellow
+YELLOW = (33, 45) # HSV range for yellow
 # Current colour to look for
 COLOUR = YELLOW
 
@@ -23,7 +23,7 @@ def filterImage(image, color, iter=3):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
     # define range of color in HSV
-    lower = np.array([color[0],50,30])
+    lower = np.array([color[0],50,40])
     upper = np.array([color[1],255,255])
 
     # Threshold the HSV image to get only red colors
