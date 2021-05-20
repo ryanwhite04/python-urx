@@ -1,3 +1,4 @@
+from math import pi
 from requests import get
 from search import search
 import cv2 as cv
@@ -9,7 +10,7 @@ ROBOT = False
 GRIPPER = False
 BUCKETS = {}
     
-def clean(num, robot, gripper, buckets):
+def clean(num, robot, gripper, buckets, speed):
     global ROBOT
     global GRIPPER
     global BUCKETS
@@ -19,7 +20,7 @@ def clean(num, robot, gripper, buckets):
     angle = pi/4
     delta = 0.1
     for color in ["RED", "GREEN", "YELLOW"]:
-        sort(num, color, delta, angle, 0.2)
+        sort(num, color, speed, delta, angle)
         angle *= -1
         delta *= -1
 
@@ -27,6 +28,11 @@ def getImage(ip, path="camera.jpg"):
     content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
     array = np.asarray(bytearray(content), dtype=np.uint8)
     return cv.imdecode(array, -1)
+
+def showImage(mask):
+    cv.imshow('mask', mask)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
 
 def showCamera(ip):
     path = getImage(ip)
@@ -43,19 +49,23 @@ def set_height(height):
     pose.pos[2] = height
     r.set_pose(pose)
 
-def sort(num, color, delta, angle, speed=0.1):
+def sort(num, color, speed, delta, angle):
     r = ROBOT
     j = r.getj()
     j[0] = -angle
     r.movej(j, speed, speed/2)
-    # while r.getj()[0] < angle:
-    #     found, image = search(num, color)
-    #     while not found:
-    #         j = r.getj()
-    #         j[0] += delta
-    #         r.movej(j, speed, speed/2)
-    #         found, image = search(num, color)
-    #     deposit(num, color, image)
+    while r.getj()[0] < angle:
+        found, mask = search(num, color)
+        print('found', found)
+        if found:
+            showImage(mask)
+            input('deposit: press enter to continue: ')
+            found = False
+            deposit(num, color, speed)
+        else:
+            j = r.getj()
+            j[0] += delta
+            r.movej(j, speed, speed/2)
 
 def moveUp(y, speed):
     r = ROBOT
@@ -70,12 +80,12 @@ def moveRight(x, speed):
     j[0] += x*0.1
     r.movej(j, speed, speed/2)
 
-def deposit(num, color, image, height=0.1):
+def deposit(num, color, speed, height=0.1):
     threshold = 30
     robot = ROBOT
     gripper = GRIPPER
     pose = robot.get_pose()
-    centre(num, color, threshold, [500, 400])
+    centre(num, color, threshold, [500, 400], speed)
     gripper.open_gripper()
     set_height(height)
     gripper.close_gripper()
@@ -84,17 +94,19 @@ def deposit(num, color, image, height=0.1):
     gripper.open_gripper()
     robot.set_pose(pose)
 
-def centre(num, color, threshold, dimensions):
-    res, x, y = getCoordinates(color)
+def centre(num, color, threshold, dimensions, speed):
+    res, x, y = getCoordinates(num, color)
+    print('centre', res, x, y)
     # x = x * scaling factor
     # y = y * scaling factor
+    input('press enter to allow: ')
     if res == True:
         if abs(x-dimensions[0]) < threshold:
             if abs(y-dimensions[1]) < threshold:
                 return 1
             else:
-                moveUp(y-dimensions[1])
-                return centre(color, threshold, dimensions)
+                moveUp(y-dimensions[1], speed)
+                return centre(num, color, threshold, dimensions, speed)
         else:
-            moveRight(x-dimensions[0])
-            return centre(color, threshold, dimensions)
+            moveRight(x-dimensions[0], speed)
+            return centre(num, color, threshold, dimensions, speed)

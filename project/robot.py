@@ -3,7 +3,7 @@ import urx
 from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper as Gripper
 from sys import argv
 from time import sleep
-from clean import clean
+from clean import *
 
 def getRobot(ip):
     rob = urx.Robot(ip, use_rt=True, urFirm=5.10)
@@ -12,11 +12,13 @@ def getRobot(ip):
     sleep(0.2)
     return rob
 
-def main(num, speed=0.1, acceleration=speed):
+def main(num, speed=0.1):
+    acceleration = speed
     ip = f'192.168.1.{num}'
     robot = getRobot(ip)
     gripper = Gripper(robot)
     buckets = {}
+    start = [0, -pi/2, -pi/2, -2, pi/2, pi]
     try:
         input("Move tool over the RED bucket, then press Enter: ")
         buckets["RED"] = robot.get_pose()
@@ -24,15 +26,14 @@ def main(num, speed=0.1, acceleration=speed):
         buckets["GREEN"] = robot.get_pose()
         input("Move tool over the YELLOW bucket, then press Enter: ")
         buckets["YELLOW"] = robot.get_pose()
-        input("Move tool to a good height and press enter: ")
-        position = robot.get_pose()
-        clean(num, robot, gripper, buckets)
-        robot.set_pose(position, speed, acceleration)
-    except:
-        print('Something went wrong')
+        robot.movej(start, speed, acceleration)
+        clean(num, robot, gripper, buckets, speed)
+    # except Exception as e:
+    #     print('Something went wrong', e)
     finally:
         robot.close()
     return robot, gripper
 
 if __name__ == "__main__":
+    print(argv)
     main(argv[1], float(argv[2]))

@@ -22,15 +22,17 @@ def addCircles(result, mask):
         print("err")
     return result
 
-def getImage(ip, path="camera.jpg"):
-    content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
+def getImage(num):
+    print('getImage', num)
+    content = get(f'http://192.168.1.{num}:4242/current.jpg?annotations=off').content
     array = np.asarray(bytearray(content), dtype=np.uint8)
     return cv.imdecode(array, -1)
 
-def showCamera(ip):
-    path = getImage(ip)
+def showCamera(num, color):
+    print('showCamera', num)
+    path = getImage(num)
     image = cv.imread(path)
-    filtered = filterImage(image, RED)
+    filtered = filterImage(image, color)
     cv.imshow('camera', image)
     cv.imshow('red', filtered)
     cv.waitKey(0)
@@ -57,7 +59,7 @@ def main(num=6, color="GREEN"):
     liveFeed(f'192.168.1.{num}', colors[color])
 
 
-def getCoordinates(color):
+def getCoordinates(num, color):
     ''' first arg returns true if circle found '''
     colors = {
         "GREEN": GREEN,
@@ -65,7 +67,7 @@ def getCoordinates(color):
         "RED": RED
     }
     c = colors[color]
-    result, mask = filterImage(getImage(ip), color, 2)
+    result, mask = filterImage(getImage(num), color, 2)
     circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT,
         4, 100,
         # param1=50, param2=30,

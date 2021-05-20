@@ -10,25 +10,12 @@ YELLOW = (15, 45) # HSV range for yellow
 
 
 # THRESHOLD
-THRESH = 30
+THRESH = 1000
 
 
-def showCamera(ip, colour):
-    if colour == "RED":
-        col = RED
-    elif colour == "YELLOW":
-        col = YELLOW
-    else:
-        col = GREEN
-
-    path = getImage(ip)
-    image = cv.imread(path)
-    #image = cv.imread('images/grass.jpg')
-    filtered, mask = filterImage(image, col)
-    #cv.imshow('camera', image)
-    #cv.imshow('red', filtered)
-    #cv.waitKey(0)
-    #cv.destroyAllWindows()'''
+def showCamera(num, color):
+    image = getImage(num)
+    filtered, mask = filterImage(image, color)
     return mask
 
 def checkForColour(mask):
@@ -39,13 +26,10 @@ def checkForColour(mask):
             if px:
                 count += 1
         columnVals.append(count)
-    avgVal = sum(columnVals) / len(columnVals)
-    return (max(columnVals) - THRESH > avgVal)
+    return sum(columnVals) > THRESH
 
-
-
-def search(colour, ipa=6):
-    ip = f'192.168.1.{ipa}'
-    mask = showCamera(ip, colour)
+def search(num, color):
+    print('search', color, num)
+    mask = showCamera(num, color)
     return checkForColour(mask), mask
 

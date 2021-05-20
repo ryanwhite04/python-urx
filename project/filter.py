@@ -11,7 +11,14 @@ YELLOW = (15, 45) # HSV range for yellow
 COLOUR = YELLOW
 
 def filterImage(image, color, iter=3):
-
+    print('filterImage', 'color', color)
+    colors = {
+            "RED": RED,
+            "GREEN": GREEN,
+            "BLUE": BLUE,
+            "YELLOW": YELLOW
+    }
+    color = colors[color]
     # Convert BGR to HSV
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
