@@ -15,7 +15,7 @@ def filterImage(image, color, iter=3):
     # Convert BGR to HSV
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
-    # define range of red color in HSV
+    # define range of color in HSV
     lower = np.array([color[0],50,30])
     upper = np.array([color[1],255,255])
 

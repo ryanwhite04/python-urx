@@ -5,7 +5,7 @@ from filter import *
 
 def addCircles(result, mask):
     #print('ffff')
-    
+
     circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT,
         4, 100,
         # param1=50, param2=30,
@@ -19,7 +19,7 @@ def addCircles(result, mask):
                 print(c)
                 cv.circle(result, (c[0], c[1]), c[2], (255, 0, 0), 3)
     except AttributeError:
-        print("err")    
+        print("err")
     return result
 
 def getImage(ip, path="camera.jpg"):
@@ -58,17 +58,28 @@ def main(num=6, color="GREEN"):
 
 
 def getCoordinates(color):
+    ''' first arg returns true if circle found '''
     colors = {
         "GREEN": GREEN,
         "YELLOW": YELLOW,
         "RED": RED
     }
     c = colors[color]
-    result, mask = filterImage(getImage(ip), color)
-    circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 2.5, 100, 200)
-    circles = np.uint16(np.around(circles))
-    return circles[0][0], circles[0][1] # return x and y centre of the first circle identified
+    result, mask = filterImage(getImage(ip), color, 2)
+    circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT,
+        4, 100,
+        # param1=50, param2=30,
+        minRadius=0, maxRadius=150)
 
+    try:
+        if circles.ndim == 3:
+            circles = np.uint16(np.around(circles))
+            for c in circles[0,:]:
+                return True, c[0], c[1] # return x and y centre of the first circle identified
+            return False, False, False
+
+    except AttributeError:
+        return False, False, False
 
 
 

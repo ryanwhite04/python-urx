@@ -1,23 +1,21 @@
-from request import get
+from requests import get
 from search import search
 import cv2 as cv
 from filter import filterImage
 from livefeed import getCoordinates
+from robot import *
 
 ROBOT = False
 GRIPPER = False
-buckets
-
-def getCoordinates(color):
-    result, mask = filterImage(cv.imread('clustered.jpg'), GREEN)
-    circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 2.5, 100, 200)
+BUCKETS = {}
     
-def main(num, robot, gripper, buckets):
+def mainClean(num, robot, gripper, buckets):
     global ROBOT
     global GRIPPER
     ROBOT = robot
     GRIPPER = gripper
-    clean(num, buckets, 0.2)
+    BUCKETS = buckets
+    clean(num)
 
 def getImage(ip, path="camera.jpg"):
     content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
@@ -32,15 +30,6 @@ def showCamera(ip):
     cv.imshow('red', filtered)
     cv.waitKey(0)
     cv.destroyAllWindows()
-
-def liveFeed(ip, color=GREEN):
-    while True:
-        try:
-            result, mask = filterImage(getImage(ip), color)
-            cv.imshow(f'live {color}', result)
-        except Exception as e:
-            print(e)
-            break
 
 def set_height(height):
     r = ROBOT
@@ -94,20 +83,21 @@ def deposit(num, color, image, height=0.1):
     set_height(height)
     gripper.close_gripper()
     robot.set_pose(pose)
-    robot.set_pose(buckets[color])
+    robot.set_pose(BUCKETS[color])
     gripper.open_gripper()
     robot.set_pose(pose)
 
 def centre(num, color, threshold, dimensions):
-    x, y = getCoordinates(color)
+    res, x, y = getCoordinates(color)
     # x = x * scaling factor
     # y = y * scaling factor
-    if abs(x-dimensions[0]) < threshold:
-        if abs(y-dimensions[1]) < threshold:
-            return 1
+    if res == True:
+        if abs(x-dimensions[0]) < threshold:
+            if abs(y-dimensions[1]) < threshold:
+                return 1
+            else:
+                moveUp(y-dimensions[1])
+                return centre(color, threshold, dimensions)
         else:
-            moveUp(y-dimensions[1])
-            centre(color, threshold, dimensions)
-    else:
-        moveRight(x-dimensions[0])
-        centre(color, threshold, dimensions)
+            moveRight(x-dimensions[0])
+            return centre(color, threshold, dimensions)
