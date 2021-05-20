@@ -9,13 +9,19 @@ ROBOT = False
 GRIPPER = False
 BUCKETS = {}
     
-def mainClean(num, robot, gripper, buckets):
+def clean(num, robot, gripper, buckets):
     global ROBOT
     global GRIPPER
+    global BUCKETS
     ROBOT = robot
     GRIPPER = gripper
     BUCKETS = buckets
-    clean(num)
+    angle = pi/4
+    delta = 0.1
+    for color in ["RED", "GREEN", "YELLOW"]:
+        sort(num, color, delta, angle, 0.2)
+        angle *= -1
+        delta *= -1
 
 def getImage(ip, path="camera.jpg"):
     content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
@@ -37,27 +43,19 @@ def set_height(height):
     pose.pos[2] = height
     r.set_pose(pose)
 
-def clean(num):
-    angle = pi/4
-    delta = 0.1
-    for color in ["RED", "GREEN", "YELLOW"]:
-        sort(num, color, delta, angle, 0.2)
-        angle *= -1
-        delta *= -1
-
 def sort(num, color, delta, angle, speed=0.1):
     r = ROBOT
     j = r.getj()
     j[0] = -angle
     r.movej(j, speed, speed/2)
-    while r.getj()[0] < angle:
-        found, image = search(num, color)
-        while not found:
-            j = r.getj()
-            j[0] += delta
-            r.movej(j, speed, speed/2)
-            found, image = search(num, color)
-        deposit(num, color, image)
+    # while r.getj()[0] < angle:
+    #     found, image = search(num, color)
+    #     while not found:
+    #         j = r.getj()
+    #         j[0] += delta
+    #         r.movej(j, speed, speed/2)
+    #         found, image = search(num, color)
+    #     deposit(num, color, image)
 
 def moveUp(y, speed):
     r = ROBOT
