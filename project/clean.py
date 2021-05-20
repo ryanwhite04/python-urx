@@ -101,12 +101,12 @@ def centre(num, color, threshold, dimensions, speed):
     # y = y * scaling factor
     input('press enter to allow: ')
     if res == True:
-        if abs(x-dimensions[0]) < threshold:
-            if abs(y-dimensions[1]) < threshold:
+        if abs(x-dimensions[0]/2) < threshold:
+            if abs(y-dimensions[1]/2) < threshold:
                 return 1
             else:
-                moveUp(y-dimensions[1], speed)
+                moveUp(y-dimensions[1]/2, speed)
                 return centre(num, color, threshold, dimensions, speed)
         else:
-            moveRight(x-dimensions[0], speed)
+            moveRight(x-dimensions[0]/2, speed)
             return centre(num, color, threshold, dimensions, speed)
