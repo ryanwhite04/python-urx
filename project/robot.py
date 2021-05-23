@@ -11,17 +11,20 @@ def is_running(self):
 
 urx.URRobot.is_running = is_running
 
-def getRobot(ip):
-    rob = urx.Robot(ip, use_rt=True, urFirm=5.1)
+def getRobot(ip, firm=False):
+    if firm:
+        rob = urx.Robot(ip, use_rt=True, urFirm=5.1)
+    else:
+        rob = urx.Robot(ip, use_rt=True)
     rob.set_tcp((0, 0, 0.1, 0, 0, 0))
     rob.set_payload(2, (0, 0, 0.1))
     sleep(0.2)
     return rob
 
-def main(num, speed=0.1):
+def main(num, speed=0.1, firm=False):
     acceleration = speed
     ip = f'192.168.1.{num}'
-    robot = getRobot(ip)
+    robot = getRobot(ip, firm)
     gripper = Gripper(robot)
     buckets = {}
     start = [0, -pi/2, -pi/2, -2, pi/2, pi]
@@ -41,5 +44,7 @@ def main(num, speed=0.1):
     return robot, gripper
 
 if __name__ == "__main__":
+
     print(argv)
-    main(argv[1], float(argv[2]))
+
+    main(argv[1], float(argv[2]), len(argv) > 3)
