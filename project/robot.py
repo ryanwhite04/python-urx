@@ -6,6 +6,11 @@ from time import sleep
 from clean import *
 from math import pi
 
+def is_running(self):
+    return True
+
+urx.URRobot.is_running = is_running
+
 def getRobot(ip):
     rob = urx.Robot(ip, use_rt=True, urFirm=5.1)
     rob.set_tcp((0, 0, 0.1, 0, 0, 0))
