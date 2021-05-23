@@ -56,19 +56,19 @@ def sort(num, color, speed, delta, angle):
             j[0] += delta
             r.movej(j, speed, speed/2, wait=True)
 
-def moveUp(y, speed, scalar=0.02):
-    print('moving up by: ', y)
+def moveUp(y, speed, scalar=1500):
+    print('moving up by: ', y, speed, scalar)
+    # j = r.getj()
     r = ROBOT
-    j = r.getj()
 
-    # pose = r.get_pose()
-
-    # pose.pos[0] += y*scalar*pi/180
-    # pose.pos[1] += y*scalar*pi/180
-    j[1] -= y*scalar*pi/180
-    j[2] += y*scalar*pi/180
-    # r.set_pose(pose)
-    r.movej(j)
+    pose = r.get_pose()
+    distance = (pose.pos[0]**2+pose.pos[1]**2)**(0.5)
+    pose.pos[0] *= (distance + y/scalar)/distance
+    pose.pos[1] *= (distance + y/scalar)/distance
+    # j[1] -= y*scalar*pi/180
+    # j[2] += y*scalar*pi/180
+    r.set_pose(pose, speed, speed)
+    # r.movej(j)
 
 def moveRight(x, speed, scalar=0.01):
     print('moving right by: ', x)
@@ -108,7 +108,7 @@ def centre(num, color, threshold, dimensions, speed, counter=0):
             if abs(y-dimensions[1]/2) < threshold:
                 return 1
             else:
-                moveUp(dimensions[1]/2-y, speed, 0.015)
+                moveUp(dimensions[1]/2-y, speed)
                 return centre(num, color, threshold, dimensions, speed)
         else:
             moveRight(x-dimensions[0]/2, speed, 0.03)
