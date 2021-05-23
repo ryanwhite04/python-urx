@@ -7,7 +7,7 @@ from clean import *
 from math import pi
 
 def getRobot(ip):
-    rob = urx.Robot(ip, use_rt=True)
+    rob = urx.Robot(ip, use_rt=True, urFirm=5.1)
     rob.set_tcp((0, 0, 0.1, 0, 0, 0))
     rob.set_payload(2, (0, 0, 0.1))
     sleep(0.2)

@@ -18,11 +18,9 @@ def clean(num, robot, gripper, buckets, speed):
     GRIPPER = gripper
     BUCKETS = buckets
     angle = pi/4
-    delta = 0.1
+    delta = 0.2
     for color in ["RED", "GREEN", "YELLOW"]:
         sort(num, color, speed, delta, angle)
-        angle *= -1
-        delta *= -1
 
 def getImage(ip, path="camera.jpg"):
     content = get(f'http://{ip}:4242/current.jpg?annotations=off').content
@@ -49,8 +47,8 @@ def sort(num, color, speed, delta, angle):
         found, mask = search(num, color)
         print('found', found)
         if found:
-            showImage(mask)
-            input('deposit: press enter to continue: ')
+            # showImage(mask)
+            # input('deposit: press enter to continue: ')
             found = False
             deposit(num, color, speed)
         else:
@@ -58,7 +56,7 @@ def sort(num, color, speed, delta, angle):
             j[0] += delta
             r.movej(j, speed, speed/2, wait=True)
 
-def moveUp(y, speed, scalar=0.005):
+def moveUp(y, speed, scalar=0.02):
     print('moving up by: ', y)
     r = ROBOT
     j = r.getj()
@@ -81,7 +79,7 @@ def moveRight(x, speed, scalar=0.01):
 
 def deposit(num, color, speed, height=0.1):
     acceleration = speed / 2
-    threshold = 10
+    threshold = 30
     robot = ROBOT
     gripper = GRIPPER
     pose = robot.get_pose()
@@ -104,7 +102,7 @@ def centre(num, color, threshold, dimensions, speed, counter=0):
     print('centre', res, x, y)
     # x = x * scaling factor
     # y = y * scaling factor
-    input('press enter to allow: ')
+    # input('press enter to allow: ')
     if res == True:
         if abs(x-dimensions[0]/2) < threshold:
             if abs(y-dimensions[1]/2) < threshold:
