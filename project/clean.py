@@ -58,17 +58,12 @@ def sort(num, color, speed, delta, angle):
 
 def moveUp(y, speed, scalar=1500):
     print('moving up by: ', y, speed, scalar)
-    # j = r.getj()
     r = ROBOT
-
     pose = r.get_pose()
     distance = (pose.pos[0]**2+pose.pos[1]**2)**(0.5)
     pose.pos[0] *= (distance + y/scalar)/distance
     pose.pos[1] *= (distance + y/scalar)/distance
-    # j[1] -= y*scalar*pi/180
-    # j[2] += y*scalar*pi/180
     r.set_pose(pose, speed, speed)
-    # r.movej(j)
 
 def moveRight(x, speed, scalar=0.01):
     print('moving right by: ', x)
