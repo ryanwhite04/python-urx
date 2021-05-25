@@ -31,7 +31,7 @@ def set_height(height, speed):
     pose.pos[2] = height
     r.set_pose(pose, speed/2, speed)
 
-def moveUp(y, speed, scalar=1500):
+def moveUp(y, speed, scalar=2000):
     print('moving up by: ', y, speed, scalar)
     r = ROBOT
     pose = r.get_pose()
@@ -40,7 +40,7 @@ def moveUp(y, speed, scalar=1500):
     pose.pos[1] *= (distance + y/scalar)/distance
     r.set_pose(pose, speed, speed)
 
-def moveRight(x, speed, scalar=0.01):
+def moveRight(x, speed, scalar=0.005):
     print('moving right by: ', x)
     r = ROBOT
     j = r.getj()
@@ -49,7 +49,7 @@ def moveRight(x, speed, scalar=0.01):
 
 def deposit(num, color, speed, height=0.1):
     acceleration = speed / 2
-    threshold = 30
+    threshold = 15
     robot = ROBOT
     gripper = GRIPPER
     pose = robot.get_pose()
@@ -57,8 +57,9 @@ def deposit(num, color, speed, height=0.1):
         return
     gripper.open_gripper()
     j = robot.getj()
-    j[3] = -pi/2.1
+    j[3] = -pi/2 - 0.2
     robot.movej(j, speed, speed/2)
+    moveUp(20, speed)
     set_height(height, speed)
     gripper.close_gripper()
     robot.set_pose(pose, acceleration, speed)
@@ -66,12 +67,28 @@ def deposit(num, color, speed, height=0.1):
     gripper.open_gripper()
     robot.set_pose(pose, acceleration, speed)
 
+def getBestCircle(circles):
+    circles = [c for c in circles if any(c)] 
+    for i, circle in enumerate(circles):
+        matching = 0
+        for j in range(1, len(circles)):
+            other = circles[(i+j)%len(circles)]
+            x = circle[0] - other[0]
+            y = circle[1] - other[1]
+            r = circle[2] + other[2]
+            if any(circle) and (x**2+y**2) < r**2/4:
+                matching += 1
+            if matching > 1:
+                return circle
+    return []
+
 def centre(num, color, threshold, dimensions, speed, counter=0):
     mask = showCamera(num, color)
-    res, x, y = getCoordinates(mask)
-    print('centre', res, x, y)
+    circle = getBestCircle([getCoordinates(mask) for i in range(5)])
+    print('circle', circle)
     # input('press enter to allow: ')
-    if res == True:
+    if any(circle):
+        x, y, radius = circle
         if abs(x-dimensions[0]/2) < threshold:
             if abs(y-dimensions[1]/2) < threshold:
                 return 1
@@ -88,10 +105,7 @@ def centre(num, color, threshold, dimensions, speed, counter=0):
         
 def sort(num, color, speed, delta, angle):
     r = ROBOT
-    j = r.getj()
-    j[0] = -angle
-    r.movej(j, speed, speed/2, wait=True)
-    while r.getj()[0] < angle:
+    while r.getj()[0] > -angle:
         found, mask = search(num, color)
         print('found', found)
         if found:
@@ -101,11 +115,11 @@ def sort(num, color, speed, delta, angle):
             deposit(num, color, speed)
         else:
             j = r.getj()
-            j[0] += delta
+            j[0] -= delta
             r.movej(j, speed, speed/2, wait=True)
 
 def main(num, speed=0.1, firm=False):
-    angle = pi/4
+    angle = pi/2
     delta = 0.2
     robot = getRobot(f'192.168.1.{num}', firm)
     gripper = Gripper(robot)
@@ -116,14 +130,23 @@ def main(num, speed=0.1, firm=False):
     ROBOT = robot
     GRIPPER = gripper
     BUCKETS = buckets
-    start = [0, -pi/2, -pi/2, -2, pi/2, pi]
+    start = [angle, -pi/2, -pi/2 + 0.2, -2.2, pi/2, pi]
     try:
-        for color in ["RED", "GREEN", "YELLOW"]:
-            input(f"Move over {color} bucket then press Enter: ")
-            buckets[color] = robot.get_pose()
-        robot.movej(start, speed, speed, wait=True)
-        for color in ["RED", "GREEN", "YELLOW"]:
-            sort(num, color, speed, delta, angle)
+        while True:
+            color = input("Which color? [R/G/Y/Q]")
+            if color == "Q":
+                break
+            else:
+                colors = {
+                    "R": "RED",
+                    "Y": "YELLOW",
+                    "G": "GREEN"
+                }
+                color = colors[color]
+                input(f"Move over {color} bucket then press Enter: ")
+                buckets[color] = robot.get_pose()
+                robot.movej(start, speed, speed, wait=True)
+                sort(num, color, speed, delta, angle)
     finally:
         robot.close()
     return robot, gripper

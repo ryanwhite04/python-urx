@@ -18,7 +18,7 @@ def checkForColour(mask, threshold=1000):
                 count += 1
         columnVals.append(count)
     
-    return sum(columnVals) > threshold and getCoordinates(mask)[0]
+    return sum(columnVals) > threshold and any(getCoordinates(mask))
 
 def search(num, color):
     print('search', color, num)
@@ -63,19 +63,14 @@ def liveFeed(num, color="GREEN"):
             print("close")
             break
 
-def main(num=6, color="GREEN"):
-    liveFeed(num, color)
-
 def getCoordinates(mask):
     circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT, 4, 100, minRadius=0, maxRadius=150)
     try:
         if circles.ndim == 3:
             circles = np.uint16(np.around(circles))
-            for c in circles[0,:]:
-                return True, c[0], c[1] # return x and y centre of the first circle identified
-            return False, False, False
+            return circles[0,:][0]
     except AttributeError:
-        return False, False, False
+        return []
 
 def filterImage(image, color, iter=3):
     print('filterImage', 'color', color)
@@ -104,6 +99,14 @@ def filterImage(image, color, iter=3):
     result = cv.bitwise_and(image, image, mask=mask)
     return result, mask
     
+def record(num, frames, path, name):
+    print('recording', num, frames, path, name)
+    frame = 0
+    while frame < frames:
+        print('frame', frame) 
+        cv.imwrite(f'{path}/{name}_{frame}.jpg', getImage(num))
+        frame += 1
+
 def main(color="GREEN", path='images/current-2.jpg'):
     cv.destroyAllWindows()
     image = cv.imread(path)
