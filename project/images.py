@@ -25,7 +25,11 @@ def search(num, color):
     mask = showCamera(num, color)
     return checkForColour(mask), mask
 
-# Global colour ranges
+def showImage(mask):
+    cv.imshow('mask', mask)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
 def addCircles(result, mask):
     circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT,
         4, 100,
@@ -47,16 +51,6 @@ def getImage(num):
     content = get(f'http://192.168.1.{num}:4242/current.jpg?annotations=off').content
     array = np.asarray(bytearray(content), dtype=np.uint8)
     return cv.imdecode(array, -1)
-
-def showCamera(num, color):
-    print('showCamera', num)
-    path = getImage(num)
-    image = cv.imread(path)
-    filtered = filterImage(image, color)
-    cv.imshow('camera', image)
-    cv.imshow('red', filtered)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
 
 def liveFeed(num, color="GREEN"):
     print('livefeed', num, color)
