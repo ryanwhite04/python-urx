@@ -19,7 +19,7 @@ def clean(num, robot, gripper, buckets, speed):
     BUCKETS = buckets
     angle = pi/4
     delta = 0.2
-    for color in ["RED", "GREEN", "YELLOW"]:
+    for color in ["RED", "GREEN"]:
         sort(num, color, speed, delta, angle)
 
 def getImage(ip, path="camera.jpg"):
@@ -41,9 +41,9 @@ def set_height(height, speed):
 def sort(num, color, speed, delta, angle):
     r = ROBOT
     j = r.getj()
-    j[0] = -angle
+    j[0] = angle
     r.movej(j, speed, speed/2, wait=True)
-    while r.getj()[0] < angle:
+    while r.getj()[0] > -angle:
         found, mask = search(num, color)
         print('found', found)
         if found:
@@ -53,7 +53,7 @@ def sort(num, color, speed, delta, angle):
             deposit(num, color, speed)
         else:
             j = r.getj()
-            j[0] += delta
+            j[0] -= delta
             r.movej(j, speed, speed/2, wait=True)
 
 def moveUp(y, speed, scalar=1500):
