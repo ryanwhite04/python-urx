@@ -30,11 +30,11 @@ def showImage(mask):
     cv.waitKey(0)
     cv.destroyAllWindows()
 
-def addCircles(result, mask):
+def addCircles(result, mask, dp=4, minDist=100, param1=100, param2=100, minRadius=50, maxRadius=150):
     circles = cv.HoughCircles(mask, cv.HOUGH_GRADIENT,
-        4, 100,
-        # param1=50, param2=30,
-        minRadius=0, maxRadius=150)
+        dp=dp, minDist=minDist,
+        param1=param1, param2=param2,
+        minRadius=minRadius, maxRadius=maxRadius)
     try:
         if circles.ndim == 3:
             circles = np.uint16(np.around(circles))
@@ -73,7 +73,7 @@ def getCoordinates(mask):
         return []
 
 def filterImage(image, color, iter=3):
-    print('filterImage', 'color', color)
+    # print('filterImage', 'color', color)
     # Upper limit first, then lower limit, in HSV format
     colors = {
             "RED": (150, 179),
